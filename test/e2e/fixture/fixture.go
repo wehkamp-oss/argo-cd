@@ -54,6 +54,9 @@ const (
 	GuestbookPath = "guestbook"
 
 	ProjectName = "argo-project"
+
+	// cmp plugin sock file path
+	PluginSockFilePath = "/app/config/plugin"
 )
 
 const (
@@ -355,7 +358,9 @@ func SetResourceOverridesSplitKeys(overrides map[string]v1alpha1.ResourceOverrid
 			if v.Actions != "" {
 				cm.Data[getResourceOverrideSplitKey(k, "actions")] = v.Actions
 			}
-			if len(v.IgnoreDifferences.JSONPointers) > 0 || len(v.IgnoreDifferences.JQPathExpressions) > 0 {
+			if len(v.IgnoreDifferences.JSONPointers) > 0 ||
+				len(v.IgnoreDifferences.JQPathExpressions) > 0 ||
+				len(v.IgnoreDifferences.ManagedFieldsManagers) > 0 {
 				yamlBytes, err := yaml.Marshal(v.IgnoreDifferences)
 				if err != nil {
 					return err
@@ -566,6 +571,8 @@ func EnsureCleanState(t *testing.T) {
 		FailOnErr(Run("", "mkdir", "-p", TmpDir+"/app/config/gpg/source"))
 		FailOnErr(Run("", "mkdir", "-p", TmpDir+"/app/config/gpg/keys"))
 		FailOnErr(Run("", "chmod", "0700", TmpDir+"/app/config/gpg/keys"))
+		FailOnErr(Run("", "mkdir", "-p", TmpDir+PluginSockFilePath))
+		FailOnErr(Run("", "chmod", "0700", TmpDir+PluginSockFilePath))
 	}
 
 	// set-up tmp repo, must have unique name
